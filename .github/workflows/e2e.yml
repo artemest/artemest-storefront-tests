@@ -34,9 +34,9 @@ jobs:
           BASE_URL: ${{ github.event.inputs.base_url || 'https://artemest.com' }}
         run: |
           if [ -n "${{ github.event.inputs.test_file }}" ]; then
-            npx playwright test ${{ github.event.inputs.test_file }}
+            npx playwright test ${{ github.event.inputs.test_file }} --project=webkit
           else
-            npx playwright test
+            npx playwright test --project=webkit
           fi
       - name: Upload report
         uses: actions/upload-artifact@v4
