@@ -1,1 +1,11 @@
-{\n  "name": "artemest-storefront-tests",\n  "version": "1.0.0",\n  "description": "Playwright E2E tests for Artemest storefront",\n  "scripts": {\n    "test": "playwright test"\n  },\n  "devDependencies": {\n    "@playwright/test": "^1.40.0"\n  }\n}
+{
+  "name": "artemest-storefront-tests",
+  "version": "1.0.0",
+  "description": "Playwright E2E tests for Artemest storefront",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}
