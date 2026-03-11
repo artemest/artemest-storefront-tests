@@ -1,19 +1,21 @@
 name: Playwright Tests
 on:
+  schedule:
+    - cron: "0 1 * * *" # ogni notte all'1:00 UTC
   workflow_dispatch:
     inputs:
       base_url:
-        description: 'Ambiente da testare'
+        description: "Ambiente da testare"
         required: true
-        default: 'https://artemest.com'
+        default: "https://artemest.com"
         type: choice
         options:
           - https://artemest.com
           - https://artemeststaging.co/
       test_file:
-        description: 'Nome del test senza estensione (es: navigazione-checkout). Lascia vuoto per eseguirli tutti.'
+        description: "Nome del test senza estensione (es: navigazione-checkout). Lascia vuoto per eseguirli tutti."
         required: false
-        default: ''
+        default: ""
 jobs:
   test:
     timeout-minutes: 60
@@ -29,7 +31,7 @@ jobs:
         run: npx playwright install --with-deps
       - name: Run Playwright tests
         env:
-          BASE_URL: ${{ github.event.inputs.base_url }}
+          BASE_URL: ${{ github.event.inputs.base_url || 'https://artemest.com' }}
         run: |
           if [ -n "${{ github.event.inputs.test_file }}" ]; then
             npx playwright test ${{ github.event.inputs.test_file }}
@@ -43,3 +45,21 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+      - name: Notifica Teams
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          AMBIENTE="${{ github.event.inputs.base_url || 'https://artemest.com' }}"
+          TEST="${{ github.event.inputs.test_file || 'tutti' }}"
+          TRIGGER="${{ github.event_name }}"
+          URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          if [ "$STATUS" = "success" ]; then
+            EMOJI="✅"
+          else
+            EMOJI="❌"
+          fi
+
+          curl -H 'Content-Type: application/json' -d "{
+            \"text\": \"$EMOJI Playwright Tests — $STATUS\n**Ambiente:** $AMBIENTE\n**Test:** $TEST\n**Trigger:** $TRIGGER\n[Vedi report]($URL)\"
+          }" "${{ secrets.TEAMS_WEBHOOK_URL }}"
