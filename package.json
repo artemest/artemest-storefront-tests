@@ -9,7 +9,8 @@
     "codegen:prod": "PWDEBUG=1 playwright codegen https://artemest.com/",
     "test:staging": "BASE_URL=https://artemeststaging.co/ playwright test",
     "test:prod": "BASE_URL=https://artemest.com/ playwright test",
-    "report": "playwright show-report"
+    "report": "playwright show-report",
+    "test:headed": "npx playwright test --headed --project=chromium"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0"
