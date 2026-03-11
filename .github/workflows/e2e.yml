@@ -56,10 +56,36 @@ jobs:
 
           if [ "$STATUS" = "success" ]; then
             EMOJI="✅"
+            COLOR="Good"
           else
             EMOJI="❌"
+            COLOR="Attention"
           fi
 
           curl -H 'Content-Type: application/json' -d "{
-            \"text\": \"$EMOJI Playwright Tests — $STATUS\n**Ambiente:** $AMBIENTE\n**Test:** $TEST\n**Trigger:** $TRIGGER\n[Vedi report]($URL)\"
+            \"type\": \"AdaptiveCard\",
+            \"version\": \"1.4\",
+            \"body\": [
+              {
+                \"type\": \"TextBlock\",
+                \"text\": \"$EMOJI Playwright Tests — $STATUS\",
+                \"weight\": \"Bolder\",
+                \"size\": \"Medium\"
+              },
+              {
+                \"type\": \"FactSet\",
+                \"facts\": [
+                  { \"title\": \"Ambiente\", \"value\": \"$AMBIENTE\" },
+                  { \"title\": \"Test\", \"value\": \"$TEST\" },
+                  { \"title\": \"Trigger\", \"value\": \"$TRIGGER\" }
+                ]
+              }
+            ],
+            \"actions\": [
+              {
+                \"type\": \"Action.OpenUrl\",
+                \"title\": \"Vedi report\",
+                \"url\": \"$URL\"
+              }
+            ]
           }" "${{ secrets.TEAMS_WEBHOOK_URL }}"
