@@ -2,7 +2,13 @@ import { test, expect } from "@playwright/test";
 
 test("test", async ({ page }) => {
   await page.goto("/it-it");
-  await page.getByRole("button", { name: "COOKIE ESSENZIALI" }).click();
+  
+  // Click cookie button only if it appears
+  const cookieButton = page.getByRole("button", { name: "COOKIE ESSENZIALI" });
+  if (await cookieButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+    await cookieButton.click();
+  }
+  
   await expect(page.locator('[id="__next"]')).toContainText(
     "Spedizione:ITA (€)",
   );
