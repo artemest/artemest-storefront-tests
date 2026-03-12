@@ -1,0 +1,332 @@
+import { test, expect } from "@playwright/test";
+
+test("test", async ({ page }) => {
+  await page.goto("/it-it");
+  await page.getByRole("button", { name: "COOKIE ESSENZIALI" }).click();
+  await page.getByRole("link", { name: "Sedute Sedute" }).click();
+  await page
+    .getByRole("link", {
+      name: "Personalizzabile Organizza le Liste Poltrona Corolla 270 in legno di frassino",
+    })
+    .click();
+  await page
+    .locator("div")
+    .filter({ hasText: "Sei un architetto o un" })
+    .nth(1)
+    .click();
+  await page.getByRole("button", { name: "Aggiungi al carrello" }).click();
+  await expect(page.getByText("NON PERDERE IL TUO CARRELLO.")).toBeVisible();
+  await expect(page.getByText("Totale ordine")).toBeVisible();
+  await expect(page.locator('[id="__next"]')).toContainText(
+    "Procedi con l'ordine",
+  );
+  await page.getByRole("link", { name: "Procedi con l'ordine" }).click();
+  await page.getByRole("button", { name: "Procedi con l'ordine" }).click();
+  await expect(page.locator("#CustomProperties-P0-0")).toMatchAriaSnapshot(`
+    - main:
+      - heading "Artemest Check-out" [level=1]
+      - region "Check-out rapido":
+        - heading "Check-out rapido" [level=2]
+        - iframe
+        - iframe
+      - paragraph: OPPURE
+      - separator
+      - region "Contatti":
+        - heading "Contatti" [level=2]
+        - text: ""
+        - textbox "Email"
+        - checkbox "Inviami messaggi promozionali e aggiornamenti editoriali"
+        - text: Inviami messaggi promozionali e aggiornamenti editoriali
+      - group "Consegna":
+        - heading "Consegna" [level=2]
+        - text: Paese / Regione
+        - combobox "Paese / Regione":
+          - option "Stati Uniti"
+          - option "Regno Unito"
+          - option "Italia"
+          - option "Spagna"
+          - option "Francia"
+          - option "---"
+          - option "Albania"
+          - option "Arabia Saudita"
+          - option "Australia"
+          - option "Austria"
+          - option "Bahrein"
+          - option "Belgio"
+          - option "Bulgaria"
+          - option "Canada"
+          - option "Cechia"
+          - option "Cina"
+          - option "Cipro"
+          - option "Corea del Sud"
+          - option "Croazia"
+          - option "Danimarca"
+          - option "Emirati Arabi Uniti"
+          - option "Estonia"
+          - option "Finlandia"
+          - option "Francia"
+          - option "Germania"
+          - option "Giappone"
+          - option "Grecia"
+          - option "India"
+          - option "Indonesia"
+          - option "Irlanda"
+          - option "Israele"
+          - option "Italia" [selected]
+          - option "Kuwait"
+          - option "Lettonia"
+          - option "Libano"
+          - option "Lituania"
+          - option "Lussemburgo"
+          - option "Malta"
+          - option "Marocco"
+          - option "Messico"
+          - option "Monaco"
+          - option "Norvegia"
+          - option "Oman"
+          - option "Paesi Bassi"
+          - option "Polonia"
+          - option "Portogallo"
+          - option "Qatar"
+          - option "RAS di Hong Kong"
+          - option "Regno Unito"
+          - option "Romania"
+          - option "San Marino"
+          - option "Singapore"
+          - option "Slovacchia"
+          - option "Slovenia"
+          - option "Spagna"
+          - option "Stati Uniti"
+          - option "Sudafrica"
+          - option "Svezia"
+          - option "Svizzera"
+          - option "Taiwan"
+          - option "Thailandia"
+          - option "Turchia"
+          - option "Ungheria"
+        - text: ""
+        - textbox "Nome"
+        - text: ""
+        - textbox "Cognome"
+        - text: Azienda (facoltativo)
+        - textbox "Azienda (facoltativo)"
+        - text: Indirizzo
+        - combobox "Indirizzo"
+        - text: Interno, scala, ecc. (facoltativo)
+        - textbox "Interno, scala, ecc. (facoltativo)"
+        - text: ""
+        - textbox "CAP"
+        - text: ""
+        - textbox "Città"
+        - text: Provincia
+        - combobox "Provincia":
+          - option "Agrigento"
+          - option "Alessandria"
+          - option "Ancona"
+          - option "Valle d’Aosta"
+          - option "Arezzo"
+          - option "Ascoli Piceno"
+          - option "Asti"
+          - option "Avellino"
+          - option "Bari"
+          - option "Barletta-Andria-Trani"
+          - option "Belluno"
+          - option "Benevento"
+          - option "Bergamo"
+          - option "Biella"
+          - option "Bologna"
+          - option "Bolzano"
+          - option "Brescia"
+          - option "Brindisi"
+          - option "Cagliari"
+          - option "Caltanissetta"
+          - option "Campobasso"
+          - option "Carbonia-Iglesias"
+          - option "Caserta"
+          - option "Catania"
+          - option "Catanzaro"
+          - option "Chieti"
+          - option "Como"
+          - option "Cosenza"
+          - option "Cremona"
+          - option "Crotone"
+          - option "Cuneo"
+          - option "Enna"
+          - option "Fermo"
+          - option "Ferrara"
+          - option "Firenze"
+          - option "Foggia"
+          - option "Forlì-Cesena"
+          - option "Frosinone"
+          - option "Genova"
+          - option "Gorizia"
+          - option "Grosseto"
+          - option "Imperia"
+          - option "Isernia"
+          - option "L'Aquila"
+          - option "La Spezia"
+          - option "Latina"
+          - option "Lecce"
+          - option "Lecco"
+          - option "Livorno"
+          - option "Lodi"
+          - option "Lucca"
+          - option "Macerata"
+          - option "Mantova"
+          - option "Massa-Carrara"
+          - option "Matera"
+          - option "Medio Campidano"
+          - option "Messina"
+          - option "Milano"
+          - option "Modena"
+          - option "Monza e Brianza"
+          - option "Napoli"
+          - option "Novara"
+          - option "Nuoro"
+          - option "Ogliastra"
+          - option "Olbia-Tempio"
+          - option "Oristano"
+          - option "Padova"
+          - option "Palermo"
+          - option "Parma"
+          - option "Pavia"
+          - option "Perugia"
+          - option "Pesaro e Urbino"
+          - option "Pescara"
+          - option "Piacenza"
+          - option "Pisa"
+          - option "Pistoia"
+          - option "Pordenone"
+          - option "Potenza"
+          - option "Prato"
+          - option "Ragusa"
+          - option "Ravenna"
+          - option "Reggio Calabria"
+          - option "Reggio Emilia"
+          - option "Rieti"
+          - option "Rimini"
+          - option "Roma"
+          - option "Rovigo" [selected]
+          - option "Salerno"
+          - option "Sassari"
+          - option "Savona"
+          - option "Siena"
+          - option "Siracusa"
+          - option "Sondrio"
+          - option "Taranto"
+          - option "Teramo"
+          - option "Terni"
+          - option "Torino"
+          - option "Trapani"
+          - option "Trento"
+          - option "Treviso"
+          - option "Trieste"
+          - option "Udine"
+          - option "Varese"
+          - option "Venezia"
+          - option "Verbano-Cusio-Ossola"
+          - option "Vercelli"
+          - option "Verona"
+          - option "Vibo Valentia"
+          - option "Vicenza"
+          - option "Viterbo"
+        - text: Telefono
+        - textbox "Telefono"
+        - button "Maggiori informazioni su Telefono"
+        - checkbox "Salva questi dati per la prossima volta"
+        - text: Salva questi dati per la prossima volta
+        - heading "Metodo di spedizione" [level=2]
+        - paragraph: Per visualizzare le modalità di spedizione disponibili, inserisci il tuo indirizzo di spedizione.
+      - region "Pagamento":
+        - group "Pagamento":
+          - heading "Pagamento" [level=2]
+          - paragraph: Tutte le transazioni sono sicure e crittografate.
+          - radio "Carta di credito" [checked]
+          - text: Carta di credito
+          - img "VISA"
+          - img "MAESTRO"
+          - img "MASTERCARD"
+          - button "+2 Metodi di pagamento aggiuntivi"
+          - text: Numero carta
+          - iframe
+          - text: Data di scadenza (MM/AA)
+          - iframe
+          - text: Codice di sicurezza
+          - iframe
+          - button "Maggiori informazioni su Codice di sicurezza"
+          - text: Nome sulla carta
+          - iframe
+          - checkbox "Usa l'indirizzo di spedizione come indirizzo di fatturazione" [checked]
+          - text: Usa l'indirizzo di spedizione come indirizzo di fatturazione
+          - radio "PayPal"
+          - text: ""
+          - img "PayPal"
+          - heading "Informazioni per la fatturazione" [level=3]
+          - text: Codice Fiscale / P. IVA
+          - textbox "Codice Fiscale / P. IVA"
+          - paragraph: /Massimo \\d+ caratteri/
+          - heading "Questo ordine è un regalo?" [level=3]
+          - checkbox "Aggiungi messaggio regalo"
+          - text: Aggiungi messaggio regalo
+          - button "Aggiungi sconto"
+        - button "Paga ora"
+    - contentinfo:
+      - strong: Hai bisogno di assistenza?
+      - paragraph:
+        - link "Termini e condizioni":
+          - /url: https://checkout.artemest.com/it-eu/terms-conditions
+      - paragraph:
+        - link "Informativa sulla Privacy":
+          - /url: https://checkout.artemest.com/it-eu/privacy-policy
+      - paragraph:
+        - text: "Scrivici a:"
+        - link "concierge@artemest.com":
+          - /url: mailto:concierge@artemest.com
+    `);
+  await expect(page.locator("#CustomProperties-P0-0")).toMatchAriaSnapshot(`
+    - complementary:
+      - heading "Riepilogo ordine" [level=2]
+      - region "Carrello":
+        - heading "Carrello" [level=3]
+        - table "Carrello":
+          - rowgroup:
+            - row "Immagine prodotto Descrizione Quantità Prezzo":
+              - columnheader "Immagine prodotto"
+              - columnheader "Descrizione"
+              - columnheader "Quantità"
+              - columnheader "Prezzo"
+          - rowgroup:
+            - row /Poltrona Corolla \\d+ in legno di frassino tinto tabacco e tessuto azzurro Quantità 1 Poltrona Corolla \\d+ in legno di frassino tinto tabacco e tessuto azzurro 1 \\d+,\\d+ €/:
+              - cell /Poltrona Corolla \\d+ in legno di frassino tinto tabacco e tessuto azzurro Quantità 1/:
+                - img /Poltrona Corolla \\d+ in legno di frassino tinto tabacco e tessuto azzurro/
+                - text: ""
+              - cell /Poltrona Corolla \\d+ in legno di frassino tinto tabacco e tessuto azzurro/:
+                - paragraph: /Poltrona Corolla \\d+ in legno di frassino tinto tabacco e tessuto azzurro/
+              - cell "1"
+              - cell /\\d+,\\d+ €/
+      - heading "Sconto" [level=3]
+      - text: Codice sconto
+      - textbox "Codice sconto"
+      - button "Applica codice sconto" [disabled]
+      - list "Codice sconto o buono regalo"
+      - heading "Riepilogo di spesa" [level=3]
+      - table "Riepilogo di spesa":
+        - rowgroup:
+          - row "Articolo Valore":
+            - columnheader "Articolo"
+            - columnheader "Valore"
+        - rowgroup:
+          - row /Subtotale \\d+,\\d+ €/:
+            - rowheader "Subtotale"
+            - cell /\\d+,\\d+ €/
+          - row "Spedizione Inserisci indirizzo di spedizione":
+            - rowheader "Spedizione"
+            - cell "Inserisci indirizzo di spedizione"
+          - row /Totale EUR \\d+,\\d+ €/:
+            - rowheader "Totale":
+              - strong: Totale
+            - cell /EUR \\d+,\\d+ €/:
+              - text: ""
+              - strong: /\\d+,\\d+ €/
+    `);
+});
