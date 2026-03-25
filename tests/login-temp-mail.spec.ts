@@ -102,7 +102,7 @@ async function getOTPFromTempMail(tempMailPage: Page): Promise<string> {
     await tempMailPage.waitForTimeout(3000);
   }
 
-  expect(otp).toMatch(/^\d{6}$/, 'OTP should be a 6-digit number');
+  expect(otp, 'OTP should be a 6-digit number').toMatch(/^\d{6}$/);
   return otp;
 }
 
@@ -115,6 +115,7 @@ test.describe('Artemest Login — OTP Authentication Flow', () => {
   let artemestPage: Page;
   let tempMailPage: Page;
   let testEmail: string;
+  let testOTP: string;
 
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext({
@@ -282,7 +283,7 @@ test.describe('Artemest Login — OTP Authentication Flow', () => {
     expect(otp).toMatch(/^\d{6}$/);
 
     // Store OTP for use in next test
-    (global as Record<string, unknown>).artemestOTP = otp;
+    testOTP = otp;
 
     console.log(`✅ TC-008 PASS: OTP received: ${otp}`);
   });
@@ -291,7 +292,7 @@ test.describe('Artemest Login — OTP Authentication Flow', () => {
   // TC-009: Enter OTP and Submit
   // ─────────────────────────────────────────────
   test('TC-009: Enter OTP code and click Submit — code accepted without errors', async () => {
-    const otp = (global as Record<string, unknown>).artemestOTP as string;
+    const otp = testOTP;
     expect(otp).toBeTruthy();
 
     // Enter the OTP
