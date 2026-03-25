@@ -7,7 +7,7 @@ import { test, expect, Page } from '@playwright/test';
 // ============================================================
 
 // ─────────────────────────────────────────────────────────────
-// TEST DATA
+// TEST DATA ile
 // ─────────────────────────────────────────────────────────────
 const BASE_URL       = 'https://artemest.com/en-us';
 const TABLES_URL     = 'https://artemest.com/en-us/categories/furniture/tables';
