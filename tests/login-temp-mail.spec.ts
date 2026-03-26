@@ -110,7 +110,7 @@ async function getOTPFromTempMail(tempMailPage: Page): Promise<string> {
 // TEST SUITE
 // ─────────────────────────────────────────────
 
-test.describe('Artemest Login — OTP Authentication Flow', () => {
+test.describe.serial('Artemest Login — OTP Authentication Flow', () => {
   let context: BrowserContext;
   let artemestPage: Page;
   let tempMailPage: Page;
@@ -122,6 +122,7 @@ test.describe('Artemest Login — OTP Authentication Flow', () => {
       viewport: { width: 1280, height: 720 },
       locale: 'en-US',
     });
+    artemestPage = await context.newPage();
   });
 
   test.afterAll(async () => {
@@ -132,8 +133,6 @@ test.describe('Artemest Login — OTP Authentication Flow', () => {
   // TC-001: Homepage Loads Successfully
   // ─────────────────────────────────────────────
   test('TC-001: Navigate to Artemest homepage — page loads successfully', async () => {
-    artemestPage = await context.newPage();
-
     const response = await artemestPage.goto(BASE_URL, {
       waitUntil: 'domcontentloaded',
       timeout: 30000,
@@ -147,7 +146,7 @@ test.describe('Artemest Login — OTP Authentication Flow', () => {
 
     // Assert key navigation elements are present
     await expect(artemestPage.locator('header')).toBeVisible();
-    await expect(artemestPage.locator('nav, [role="navigation"]').first()).toBeVisible();
+    await expect(artemestPage.locator('nav').first()).toBeVisible();
 
     // Assert hero/main content area is present
     await expect(artemestPage.locator('main, [role="main"]').first()).toBeVisible();
