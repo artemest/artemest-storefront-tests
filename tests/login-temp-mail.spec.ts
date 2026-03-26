@@ -9,7 +9,7 @@ import { test, expect, Page, BrowserContext } from '@playwright/test';
 // ─────────────────────────────────────────────
 // CONFIGURATION
 // ─────────────────────────────────────────────
-const BASE_URL = 'https://artemest.com/en-us';
+const BASE_URL = 'https://artemest.com/';
 const TEMP_MAIL_URL = 'https://temp-mail.org/it/';
 const OTP_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes in milliseconds
 const EMAIL_WAIT_TIMEOUT = 30000; // 30 seconds to wait for email arrival
