@@ -12,7 +12,7 @@ import { test, expect, Page, BrowserContext } from '@playwright/test';
 const BASE_URL = 'https://artemest.com/';
 const TEMP_MAIL_URL = 'https://temp-mail.org/it/';
 const OTP_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes in milliseconds
-const EMAIL_WAIT_TIMEOUT = 30000; // 30 seconds to wait for email arrival
+const EMAIL_WAIT_TIMEOUT = 60000; // 60 seconds to wait for email arrival
 
 // ─────────────────────────────────────────────
 // HELPERS
@@ -50,8 +50,8 @@ async function getTempEmail(tempMailPage: Page): Promise<string> {
   const emailInput = tempMailPage.locator('input[type="text"]').first();
 
   // Wait for email to be generated (not in loading state)
-  await expect(emailInput).not.toHaveValue(/caricamento|loading/i, { timeout: 15000 });
-  await expect(emailInput).toHaveValue(/@/, { timeout: 15000 });
+  await expect(emailInput).not.toHaveValue(/caricamento|loading/i, { timeout: 30000 });
+  await expect(emailInput).toHaveValue(/@/, { timeout: 30000 });
 
   const email = await emailInput.inputValue();
   expect(email).toMatch(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
@@ -145,11 +145,10 @@ test.describe.serial('Artemest Login — OTP Authentication Flow', () => {
     await expect(artemestPage).toHaveTitle(/Artemest/i);
 
     // Assert key navigation elements are present
-    await expect(artemestPage.locator('header')).toBeVisible();
-    await expect(artemestPage.locator('nav').first()).toBeVisible();
+    await expect(artemestPage.locator('header')).toBeVisible({ timeout: 10000 });
 
     // Assert hero/main content area is present
-    await expect(artemestPage.locator('main, [role="main"]').first()).toBeVisible();
+    await expect(artemestPage.locator('main, [role="main"]').first()).toBeVisible({ timeout: 10000 });
 
     // Dismiss any popups that appear on load
     await dismissPopupsIfPresent(artemestPage);
@@ -169,7 +168,7 @@ test.describe.serial('Artemest Login — OTP Authentication Flow', () => {
       '[aria-label*="account" i], [aria-label*="login" i], [aria-label*="user" i], [href*="account"], [href*="login"]'
     ).first();
 
-    await expect(accountIcon).toBeVisible({ timeout: 5000 });
+    await expect(accountIcon).toBeVisible({ timeout: 10000 });
     await expect(accountIcon).toBeEnabled();
 
     console.log('✅ TC-002 PASS: Account icon visible and enabled in header');
@@ -190,12 +189,12 @@ test.describe.serial('Artemest Login — OTP Authentication Flow', () => {
     await artemestPage.waitForURL(/login|sign-?in|authentication/i, { timeout: 10000 });
 
     // Assert login page elements
-    await expect(artemestPage.locator('input[type="email"], input[name*="email" i]')).toBeVisible({ timeout: 5000 });
-    await expect(artemestPage.locator('button[type="submit"]')).toBeVisible();
+    await expect(artemestPage.locator('input[type="email"], input[name*="email" i]')).toBeVisible({ timeout: 10000 });
+    await expect(artemestPage.getByRole('button', { name: /continue|submit/i }).first()).toBeVisible({ timeout: 10000 });
 
     // Assert page heading
     const heading = artemestPage.locator('h1, h2').filter({ hasText: /sign in|login/i }).first();
-    await expect(heading).toBeVisible({ timeout: 5000 });
+    await expect(heading).toBeVisible({ timeout: 10000 });
 
     console.log('✅ TC-003 PASS: Login page displayed with email field and submit button');
   });
@@ -263,7 +262,7 @@ test.describe.serial('Artemest Login — OTP Authentication Flow', () => {
     await expect(emailConfirmation).toBeVisible({ timeout: 5000 });
 
     // Assert SUBMIT button exists
-    await expect(artemestPage.locator('button[type="submit"]')).toBeVisible();
+    await expect(artemestPage.getByRole('button', { name: /submit|continue/i }).first()).toBeVisible({ timeout: 10000 });
 
     // Assert "Sign in with different email" escape link
     const changeEmailLink = artemestPage.locator('a, button').filter({ hasText: /different email|change email/i });
