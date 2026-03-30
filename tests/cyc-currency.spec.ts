@@ -111,7 +111,9 @@ async function selectCountry(page: Page, countryCode: string): Promise<void> {
   if (await option.isVisible({ timeout: TIMEOUTS.MEDIUM }).catch(() => false)) {
     await option.click();
   } else {
-    await dropdown.fill(countryCode);
+    // Type into the combobox using keyboard input instead of fill()
+    await dropdown.type(countryCode);
+    await page.waitForTimeout(300);
     await page.getByRole('option').first().click();
   }
   
