@@ -187,9 +187,14 @@ test.describe.serial('Artemest Login — OTP Authentication Flow', () => {
 
     // Wait for navigation to login page
     await artemestPage.waitForURL(/login|sign-?in|authentication/i, { timeout: 10000 });
+    
+    // Wait for form to render
+    await artemestPage.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
-    // Assert login page elements
-    await expect(artemestPage.locator('input[type="email"], input[name*="email" i]')).toBeVisible({ timeout: 10000 });
+    // Assert login page elements with first() to avoid strict mode violations
+    const emailInput = artemestPage.locator('input[type="email"], input[placeholder*="email" i], input[name*="email" i]').first();
+    await expect(emailInput).toBeVisible({ timeout: 10000 });
+    
     await expect(artemestPage.getByRole('button', { name: /continue|submit/i }).first()).toBeVisible({ timeout: 10000 });
 
     // Assert page heading
@@ -228,14 +233,15 @@ test.describe.serial('Artemest Login — OTP Authentication Flow', () => {
       ).first();
       await accountIcon.click();
       await artemestPage.waitForURL(/login|authentication/i, { timeout: 10000 });
+      await artemestPage.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
     }
 
-    const emailInput = artemestPage.locator('input[type="email"], input[name*="email" i]').first();
+    const emailInput = artemestPage.locator('input[type="email"], input[placeholder*="email" i], input[name*="email" i]').first();
     await emailInput.fill(testEmail);
     await expect(emailInput).toHaveValue(testEmail);
 
     // Submit the form
-    const continueButton = artemestPage.locator('button[type="submit"]').first();
+    const continueButton = artemestPage.getByRole('button', { name: /continue|submit/i }).first();
     await continueButton.click();
 
     // Verify no inline error messages appear
@@ -251,6 +257,7 @@ test.describe.serial('Artemest Login — OTP Authentication Flow', () => {
   test('TC-007: OTP input page is displayed after email submission', async () => {
     // Wait for navigation to OTP page
     await artemestPage.waitForURL(/code|otp|verify/i, { timeout: 10000 });
+    await artemestPage.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
     // Assert OTP field is displayed
     const otpInput = artemestPage.locator('input[type="text"], input[inputmode="numeric"], input[autocomplete*="one-time"]').first();
