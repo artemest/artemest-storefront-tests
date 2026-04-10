@@ -6,13 +6,35 @@
 
 import { test, expect, Page, BrowserContext } from '@playwright/test';
 
+// Find your API key at https://mailosaur.com/app/keys
+const MailosaurClient = require('mailosaur');
+
 // ─────────────────────────────────────────────
 // CONFIGURATION
 // ─────────────────────────────────────────────
 const BASE_URL = 'https://artemest.com/';
-const TEMP_MAIL_URL = 'https://temp-mail.org/it/';
+const TEST_EMAIL = 'tech+new@artemest.com';
+const MAILOSAUR_API_KEY = process.env.MAILOSAUR_API_KEY || '';
+const MAILOSAUR_SERVER_ID = process.env.MAILOSAUR_SERVER_ID || '';
+const MAILOSAUR_INBOX_ID = process.env.MAILOSAUR_INBOX_ID || '';
 const OTP_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes in milliseconds
 const EMAIL_WAIT_TIMEOUT = 60000; // 60 seconds to wait for email arrival
+
+// ─────────────────────────────────────────────
+// MAILOSAUR CLIENT
+// ─────────────────────────────────────────────
+
+let mailosaurClient: any = null;
+
+function getMailosaurClient(): any {
+  if (!mailosaurClient) {
+    if (!MAILOSAUR_API_KEY) {
+      throw new Error('MAILOSAUR_API_KEY environment variable must be set');
+    }
+    mailosaurClient = new MailosaurClient(MAILOSAUR_API_KEY);
+  }
+  return mailosaurClient;
+}
 
 // ─────────────────────────────────────────────
 // HELPERS
@@ -42,67 +64,37 @@ async function dismissPopupsIfPresent(page: Page): Promise<void> {
 }
 
 /**
- * Retrieves the temporary email address from temp-mail.org.
- * Waits until the address is fully loaded (not "Loading...").
+ * Generates a unique test email address with timestamp
  */
-async function getTempEmail(tempMailPage: Page): Promise<string> {
-  await tempMailPage.goto(TEMP_MAIL_URL);
-  const emailInput = tempMailPage.locator('input[type="text"]').first();
-
-  // Wait for email to be generated (not in loading state)
-  await expect(emailInput).not.toHaveValue(/caricamento|loading/i, { timeout: 30000 });
-  await expect(emailInput).toHaveValue(/@/, { timeout: 30000 });
-
-  const email = await emailInput.inputValue();
-  expect(email).toMatch(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
-  return email;
+function generateUniqueEmail(serverId: string): string {
+  const emailAddress = `test.${Date.now()}@${serverId}.mailosaur.net`;
+  expect(emailAddress).toMatch(/^[^\s@]+@[^\s@]+\.mailosaur\.net$/);
+  return emailAddress;
 }
 
 /**
- * Waits for the OTP email to arrive in the temp-mail inbox
- * and returns the 6-digit code extracted from the email subject or body.
+ * Waits for the OTP email to arrive via Mailosaur API
+ * and returns the 6-digit code extracted from the email body.
  */
-async function getOTPFromTempMail(tempMailPage: Page): Promise<string> {
-  // Poll for incoming email from Artemest
-  let otp = '';
-  const startTime = Date.now();
+async function getOTPFromMailosaur(inboxId: string, emailAddress: string): Promise<string> {
+  const client = getMailosaurClient();
+  
+  // Wait for the OTP email to arrive (timeout in ms)
+  const email = await client.messages.waitFor(inboxId, {
+    sentTo: emailAddress,
+    timeout: EMAIL_WAIT_TIMEOUT,
+  });
 
-  while (!otp && Date.now() - startTime < EMAIL_WAIT_TIMEOUT) {
-    await tempMailPage.reload();
-    await tempMailPage.waitForTimeout(2000);
+  expect(email).toBeTruthy();
 
-    // Look for email row from Artemest
-    const emailRow = tempMailPage.locator('text=Artemest').first();
-    if (await emailRow.isVisible({ timeout: 3000 }).catch(() => false)) {
-      // Check if subject contains the code
-      const subjectText = await tempMailPage
-        .locator('[class*="subject"], td').filter({ hasText: /\d{6}/ })
-        .first()
-        .textContent()
-        .catch(() => '');
+  // Extract 6-digit OTP from email body
+  const bodyText = email.html.body || email.text.body || '';
+  const match = bodyText.match(/(\d{6})/);
+  expect(match, 'OTP should be a 6-digit number in email body').toBeTruthy();
 
-      const match = subjectText?.match(/(\d{6})/);
-      if (match) {
-        otp = match[1];
-        break;
-      }
-
-      // If not found in list, click and read email body
-      await emailRow.click();
-      await tempMailPage.waitForTimeout(1500);
-
-      const bodyText = await tempMailPage.locator('body').textContent() ?? '';
-      const bodyMatch = bodyText.match(/(\d{6})/);
-      if (bodyMatch) {
-        otp = bodyMatch[1];
-        break;
-      }
-    }
-
-    await tempMailPage.waitForTimeout(3000);
-  }
-
-  expect(otp, 'OTP should be a 6-digit number').toMatch(/^\d{6}$/);
+  const otp = match![1];
+  expect(otp).toMatch(/^\d{6}$/);
+  console.log('OTP received:', otp);
   return otp;
 }
 
@@ -113,9 +105,9 @@ async function getOTPFromTempMail(tempMailPage: Page): Promise<string> {
 test.describe.serial('Artemest Login — OTP Authentication Flow', () => {
   let context: BrowserContext;
   let artemestPage: Page;
-  let tempMailPage: Page;
   let testEmail: string;
   let testOTP: string;
+  let inboxId: string;
 
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext({
@@ -205,19 +197,30 @@ test.describe.serial('Artemest Login — OTP Authentication Flow', () => {
   });
 
   // ─────────────────────────────────────────────
-  // TC-004 & TC-005: Generate Temp Email from temp-mail.org
+  // TC-004 & TC-005: Use Static Test Email
   // ─────────────────────────────────────────────
-  test('TC-004 & TC-005: Open temp-mail.org and retrieve a valid temporary email address', async () => {
-    tempMailPage = await context.newPage();
+  test('TC-004 & TC-005: Use static test email address: tech+new@artemest.com', async () => {
+    // Verify environment variables are set
+    if (!MAILOSAUR_API_KEY || !MAILOSAUR_SERVER_ID || !MAILOSAUR_INBOX_ID) {
+      throw new Error('MAILOSAUR_API_KEY, MAILOSAUR_SERVER_ID, and MAILOSAUR_INBOX_ID environment variables must be set');
+    }
 
-    testEmail = await getTempEmail(tempMailPage);
+    // Generate a unique test email with timestamp
+    testEmail = generateUniqueEmail(MAILOSAUR_SERVER_ID);
+    inboxId = MAILOSAUR_INBOX_ID;
 
-    // Validate the generated email
+    // Make a simple API call to verify Mailosaur connection
+    const client = getMailosaurClient();
+    const result = await client.servers.list();
+    expect(result.items.length).toBeGreaterThan(0);
+    console.log(`✅ Mailosaur API verified - Server name is: ${result.items[0].name}`);
+
+    // Validate the email
     expect(testEmail).toBeTruthy();
-    expect(testEmail).toMatch(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+    expect(testEmail).toMatch(/^[^\s@]+@[^\s@]+\.mailosaur\.net$/);
 
     // Store for use in subsequent tests
-    console.log(`✅ TC-004/005 PASS: Temporary email generated: ${testEmail}`);
+    console.log(`✅ TC-004/005 PASS: Unique test email generated: ${testEmail} (Mailosaur Inbox: ${inboxId})`);
   });
 
   // ─────────────────────────────────────────────
@@ -281,8 +284,8 @@ test.describe.serial('Artemest Login — OTP Authentication Flow', () => {
   // ─────────────────────────────────────────────
   // TC-008: OTP Email Received and Code Extracted
   // ─────────────────────────────────────────────
-  test('TC-008: OTP email received in temp-mail inbox within 30 seconds', async () => {
-    const otp = await getOTPFromTempMail(tempMailPage);
+  test('TC-008: OTP email received in Mailosaur inbox within 30 seconds', async () => {
+    const otp = await getOTPFromMailosaur(inboxId, testEmail);
 
     // Validate OTP format
     expect(otp).toMatch(/^\d{6}$/);
